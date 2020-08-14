@@ -4,16 +4,15 @@ class Imos:
     def __init__(self, n):
         self.B = [0] * n
         self.n = n
-        # from itertools import accumulate
-        self.ac = accumulate
- 
-    def __call__(self, l, r):
+
+    def __call__(self, l, r, v = 1):
         l, r = max(l, 0), min(r, self.n - 1)
-        self.B[l] += 1
-        self.B[r + 1] -= 1
- 
+        self.B[l] += v
+        if r + 1 != self.n:
+            self.B[r + 1] -= v
+
     def out(self):
-        *res, = self.ac(self.B)
+        *res, = accumulate(self.B)
         # self.__init__(self.n)
         return res
 
