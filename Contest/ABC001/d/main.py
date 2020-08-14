@@ -27,11 +27,11 @@ def O(t: "min.") -> "hhmm":
 def round5(a, b):
     return a // 5 * 5, 0--b // 5 * 5
 
-imos = Imos(24 * 60 + 2)
+imos = Imos(24 * 60 + 1)
 for i in range(int(input())):
     imos(*round5(*map(I, input().split("-"))))
 
 D = imos.out()
-S = [list(l) for k, l in groupby(range(24 * 60 + 2), key = lambda i: D[i] > 0) if k]
+S = [[*l] for k, l in groupby(range(24 * 60 + 1), key = lambda i: D[i] > 0) if k]
 for s, *_, e in S:
     print(f"{O(s)}-{O(e)}")
