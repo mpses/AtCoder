@@ -24,26 +24,17 @@ class UnionFind():
     def size(self, x):
         return -self.parents[self.find(x)]
 
-import sys
-input = sys.stdin.readline
+(n, m), *d = [[*map(int,o.split())] for o in open(0)]
+I, q, J = d[:m], int(*d[m]), d[m + 1:]
 
-n, m = map(int, input().split())
 data = []
-
 UF = UnionFind(n + 1)
 
-F = 1
-for _ in [0] * m:
-    a, b, y = map(int, input().split())
-    data += [-y, F, a, b],
+for a, b, y in I:
+    data += [-y, 1, a, b],
 
-q = int(input())
-
-F = 0
-for i in range(q):
-    v, w = map(int, input().split())
-    data += [-w, F, i, v],
-
+for e, (v, w) in enumerate(J):
+    data += [-w, 0, e, v],
 
 # 1. based on weight ; 大きい方を前に来るようにソートするのでマイナス
 # 2. based on F ; 先に質問に答える (F = 0)
