@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-import sys
-input = sys.stdin.readline
-
-n, q = map(int, input().split())
-
 class UnionFind():
     def __init__(self, n):
         self.n = n
@@ -45,11 +40,10 @@ class UnionFind():
     def all_group_members(self):
         return {r: self.members(r) for r in self.roots()}
 
-UF = UnionFind(n*2)
-for _ in [None]*q:
-    w, x, y, z = map(int, input().split())
-    x -= 1
-    y -= 1
+(n, _), *q = [[*map(int, o.split())] for o in open(0)]
+UF = UnionFind(n * 2)
+for w, x, y, z in q:
+    x -= 1; y -= 1
     if w == 1:
         if z%2:
             UF.union(x, y + n)

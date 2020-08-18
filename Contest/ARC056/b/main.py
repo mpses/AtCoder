@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 class UnionFind():
-    def __init__(self, n, m = None, read = 0):
+    def __init__(self, n):
         self.n = n
         self.parents = [-1] * n
 
@@ -40,15 +40,18 @@ class UnionFind():
     def all_group_members(self):
         return {r: self.members(r) for r in self.roots()}
 
-(n, k, l), *d = [[*map(int, o.split())] for o in open(0)]
-R, T = UnionFind(n), UnionFind(n)
-for p, q in d[:k]:
-    R.union(p - 1, q - 1)
-for r, s in d[k:]:
-    T.union(r - 1, s - 1)
-C = []
-for i in range(n):
-    C += (R.find(i), T.find(i)),
+(n, m, s), *q = [[*map(int,o.split())] for o in open(0)]
 from collections import*
-c = Counter(C)
-print(*[c[g] for g in C])
+d = defaultdict(list)
+for u, v in q:
+    d[min(u, v, s)] += (u, v),
+UF = UnionFind(n + 2)
+UF.union(s, n + 1)
+ans = []
+for i in range(s, 0, -1):
+    for u, v in d[i]:
+        UF.union(u, v)
+    if UF.same(i, n + 1):
+        ans += i,
+for i in ans[::-1]:
+    print(i)
