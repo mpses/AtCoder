@@ -21,8 +21,7 @@ class WeightedUnionFind():
         if x == y:
             return
         if self.parents[x] > self.parents[y]:
-            x, y = y, x
-            w = -w
+            x, y, w = y, x, -w
         self.parents[x] += self.parents[y]
         self.parents[y] = x
         self.weight[y] = w
@@ -33,23 +32,17 @@ class WeightedUnionFind():
         return self.weight[x]
 
     def diff(self, x, y):
-        return self.weight[y] - self.weight[x]
-
-    def size(self, x):
-        return -self.parents[self.find(x)]
-
+        return self.weig(y) - self.weig(x)
+    
     def same(self, x, y):
         return self.find(x) == self.find(y)
 
-
-n, m = map(int, input().split())
+(n, m), *q = [[*map(int, o.split())] for o in open(0)]
 UF = WeightedUnionFind(n + 1)
-
-for i in range(m):
-    l, r, d = map(int, input().split())
+for l, r, d in q:
     if UF.same(l, r):
         if d != abs(UF.diff(l, r)):
-            exit(print("No"))
+            print("No"); exit()
     else:
         UF.union(l, r, d)
 print("Yes")
