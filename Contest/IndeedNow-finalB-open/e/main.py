@@ -17,10 +17,10 @@ class Bit:
         return str(list(self))
 
     def sum(self, i):
-        # [0, i) の要素の総和を返す
+        # Σ [0, i)
         if not (0 <= i <= self.size): raise ValueError("error!")
         s = 0
-        while i>0:
+        while i > 0:
             s += self.tree[i]
             i -= i & -i
         return s
@@ -34,28 +34,24 @@ class Bit:
 
     def __getitem__(self, key):
         if not (0 <= key < self.size): raise IndexError("error!")
-        return self.sum(key+1) - self.sum(key)
+        return self.sum(key + 1) - self.sum(key)
 
     def __setitem__(self, key, value):
-        # 足し算と引き算にはaddを使うべき
         if not (0 <= key < self.size): raise IndexError("error!")
         self.add(key, value - self[key])
 
-(n, q), c, *d = [[*map(int, o.split())] for o in open(0)]
+def compress(a: list) -> list:
+    d = {v : i for i, v in enumerate(sorted(set(a)))}
+    return [d[i] for i in a]
 
-d = sorted(enumerate(d), key = lambda x: x[1][1])
+# mergecount 改造
+def mergecount_(A: list):
+    bit = Bit(n + 1)
+    cnt = 0
+    for i, (h, d) in enumerate(zip(A, compress(A))):
+        cnt += h * (i - bit.sum(d + 1))
+        bit.add(d, 1)
+    return cnt
 
-B = Bit(n)
-ans = [-1] * q
-last = [-1] * (n + 1)
-ind = 0  # [-, ind) まで確認終了
-for i, (l, r) in d:
-    for j in range(ind, r):
-        if last[c[j]] != -1:
-            B.add(last[c[j]], -1)
-        B.add(j, 1)
-        last[c[j]] = j
-    ind = r
-    ans[i] = B.sum(r) - B.sum(l - 1)
-for a in ans:
-    print(a)
+n, *h = map(int, open(0).read().split())
+print(-1 if len(set(h)) != n else mergecount_(h))
