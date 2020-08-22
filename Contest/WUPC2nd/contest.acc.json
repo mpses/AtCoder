@@ -1,0 +1,108 @@
+{
+  "contest": {
+    "id": "WUPC2nd",
+    "title": "第2回早稲田大学プログラミングコンテスト",
+    "url": "https://atcoder.jp/contests/WUPC2nd"
+  },
+  "tasks": [
+    {
+      "id": "wupc_01",
+      "label": "A",
+      "title": "団子とうさぎ",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_01",
+      "directory": {
+        "path": "a",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_02",
+      "label": "B",
+      "title": "雨上がり",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_02",
+      "directory": {
+        "path": "b",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_03",
+      "label": "C",
+      "title": "至高のケーキ",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_03",
+      "directory": {
+        "path": "c",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_04",
+      "label": "D",
+      "title": "5キューブ",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_04",
+      "directory": {
+        "path": "d",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_05",
+      "label": "E",
+      "title": "独立記念日",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_05",
+      "directory": {
+        "path": "e",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_06",
+      "label": "F",
+      "title": "僕は宇宙人",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_06",
+      "directory": {
+        "path": "f",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_07",
+      "label": "G",
+      "title": "だるま落とし",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_07",
+      "directory": {
+        "path": "g",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_08",
+      "label": "H",
+      "title": "ダイヤグラム",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_08",
+      "directory": {
+        "path": "h",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    },
+    {
+      "id": "wupc_09",
+      "label": "I",
+      "title": "その味は甘くて",
+      "url": "https://atcoder.jp/contests/WUPC2nd/tasks/wupc_09",
+      "directory": {
+        "path": "i",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    }
+  ]
+}
