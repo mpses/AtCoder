@@ -7,14 +7,14 @@ class SegmentTree(object):
         self.op = op
         if hasattr(a, "__iter__"):
             self.real_size = len(a)
-            self.elem_size = elem_size = 1 << (self.real_size-1).bit_length()
+            self.elem_size = elem_size = 1 << (self.real_size - 1).bit_length()
             self.tree = tree = [default] * (elem_size * 2)
-            tree[elem_size:elem_size + self.real_size] = a
+            tree[elem_size : elem_size + self.real_size] = a
             for i in range(elem_size - 1, 0, -1):
                 tree[i] = op(tree[i << 1], tree[(i << 1) + 1])
         elif isinstance(a, int):
             self.real_size = a
-            self.elem_size = elem_size = 1 << (self.real_size-1).bit_length()
+            self.elem_size = elem_size = 1 << (self.real_size - 1).bit_length()
             self.tree = [default] * (elem_size * 2)
         else:
             raise TypeError
@@ -32,7 +32,7 @@ class SegmentTree(object):
             l, r = l >> 1, r >> 1
         return result
 
-    def set_value(self, i: int, value: int) -> None:
+    def __setitem__(self, i: int, value: int) -> None:
         k = self.elem_size + i
         op, tree = self.op, self.tree
         tree[k] = value
@@ -40,7 +40,7 @@ class SegmentTree(object):
             k >>= 1
             tree[k] = op(tree[k << 1], tree[(k << 1) + 1])
 
-    def get_one_value(self, i):
+    def __getitem__(self, i):
         return self.tree[i + self.elem_size]
 
     def debug(self):
@@ -48,6 +48,10 @@ class SegmentTree(object):
 
 (N, L), *d = [[*map(int, o.split())] for o in open(0)]
 d.sort()
-dp = SegmentTree(L + 1) # dp[i] := 距離 i まで照らすのに使う最小コスト
-for i, (l, r, c) in d:
-    dp[r] = min(dp[r], )
+
+INF = float("inf")
+dp = [0] + [INF] * L
+dp = SegmentTree(dp) # dp[i] := 距離 i まで照らすのに使う最小コスト
+for l, r, c in d:
+    dp[r] = min(dp[r], dp.get_value(l, r + 1) + c)
+print(dp[L])
