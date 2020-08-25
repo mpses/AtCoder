@@ -1,176 +1,187 @@
 #!/usr/bin/env python3
-import sys
-input = sys.stdin.readline
-
-class BalancingTree:
-    def __init__(self, n):
-        self.N = n
-        self.root = self.node(1<<n, 1<<n)
-        
-    def debug(self):
-        def debug_info(nd_):
-            return (nd_.value - 1, nd_.left.value - 1 if nd_.left else -1,
-                    nd_.right.value - 1 if nd_.right else -1)
-        
-        def debug_node(nd):
-            re = []
-            if nd.left:
-                re += debug_node(nd.left)
-            if nd.value: re.append(debug_info(nd))
-            if nd.right:
-                re += debug_node(nd.right)
-            return re
-        print("Debug - root =", self.root.value - 1, debug_node(self.root)[:50])
-        
-    def append(self, v):
-        v += 1
-        nd = self.root
-        while True:
-            if v == nd.value:
-                return 0
-            else:
-                mi, ma = min(v, nd.value), max(v, nd.value)
-                if mi < nd.pivot:
-                    nd.value = ma
-                    if nd.left:
-                        nd = nd.left
-                        v = mi
-                    else:
-                        p = nd.pivot
-                        nd.left = self.node(mi, p - (p&-p) // 2)
-                        break
-                else:
-                    nd.value = mi
-                    if nd.right:
-                        nd = nd.right
-                        v = ma
-                    else:
-                        p = nd.pivot
-                        nd.right = self.node(ma, p + (p&-p) // 2)
-                        break
-    
-    def leftmost(self, nd):
-        if nd.left: return self.leftmost(nd.left)
-        return nd
-    def rightmost(self, nd):
-        if nd.right: return self.rightmost(nd.right)
-        return nd
-    
-    def find_l(self, v):
-        v += 1
-        nd = self.root
-        prev = 0
-        if nd.value < v: prev = nd.value
-        while True:
-            if v <= nd.value:
-                if nd.left:
-                    nd = nd.left
-                else:
-                    return prev - 1
-            else:
-                if nd.value < v: prev = nd.value
-                if nd.right:
-                    nd = nd.right
-                else:
-                    return prev - 1
-    
-    def find_r(self, v):
-        v += 1
-        nd = self.root
-        prev = 0
-        if nd.value > v: prev = nd.value
-        while True:
-            if v <= nd.value:
-                if nd.value > v: prev = nd.value
-                if nd.left:
-                    nd = nd.left
-                else:
-                    return prev - 1
-            else:
-                if nd.right:
-                    nd = nd.right
-                else:
-                    return prev - 1
-    
-    def find_max(self):
-        return self.find_l((1 << self.N)-1)
-    def find_min(self):
-        return self.find_r(-1)
-    
-    def delete(self, v, nd = None, prev = None):
-        v += 1
-        if not nd: nd = self.root
-        if not prev: prev = nd
-        while v != nd.value:
-            prev = nd
-            if v <= nd.value:
-                if nd.left:
-                    nd = nd.left
-                else:
-                    return 0
-            else:
-                if nd.right:
-                    nd = nd.right
-                else:
-                    return 0
-        if (not nd.left) and (not nd.right):
-            if nd.value < prev.value:
-                prev.left = None
-            else:
-                prev.right = None
-        elif not nd.left:
-            if nd.value < prev.value:
-                prev.left = nd.right
-            else:
-                prev.right = nd.right
-        elif not nd.right:
-            if nd.value < prev.value:
-                prev.left = nd.left
-            else:
-                prev.right = nd.left
+from bisect import bisect_left, bisect_right, insort_right
+class SquareSkipList:
+    # SkipList の層数を 2 にした感じの何か
+    # std::multiset の代用になる
+    def __init__(self, values = None, sorted_ = False, square = 1000, seed = 42, inf = float("inf")):
+        # values: 初期値のリスト
+        # sorted_: 初期値がソート済みであるか
+        # square: 最大データ数の平方根
+        # seed: 乱数のシード
+        # inf: 番兵（要素がタプルのときは (float("inf"), float("inf")) にする）
+        self.square = square
+        if values is None:
+            self.rand_y = seed
+            self.layer1 = [inf]
+            self.layer0 = [[]]
         else:
-            nd.value = self.leftmost(nd.right).value
-            self.delete(nd.value - 1, nd.right, nd)
-    
-    class node:
-        def __init__(self, v, p):
-            self.value = v
-            self.pivot = p
-            self.left = None
-            self.right = None
+            self.layer1 = layer1 = []
+            self.layer0 = layer0 = []
+            if not sorted_:
+                values.sort()
+            y = seed
+            l0 = []
+            for v in values:
+                y ^= (y & 0x7ffff) << 13
+                y ^= y >> 17
+                y ^= (y & 0x7ffffff) << 5
+                if y % square == 0:
+                    layer0.append(l0)
+                    l0 = []
+                    layer1.append(v)
+                else:
+                    l0.append(v)
+            layer1.append(inf)
+            layer0.append(l0)
+            self.rand_y = y
+ 
+    def add(self, x):  # 要素の追加  # O(sqrt(n))
+        # xorshift
+        y = self.rand_y
+        y ^= (y & 0x7ffff) << 13
+        y ^= y >> 17
+        y ^= (y & 0x7ffffff) << 5
+        self.rand_y = y
+ 
+        if y % self.square == 0:
+            layer1, layer0 = self.layer1, self.layer0
+            idx1 = bisect_right(layer1, x)
+            layer1.insert(idx1, x)
+            layer0_idx1 = layer0[idx1]
+            idx0 = bisect_right(layer0_idx1, x)
+            layer0.insert(idx1 + 1, layer0_idx1[idx0:])
+            del layer0_idx1[idx0:]
+        else:
+            idx1 = bisect_right(self.layer1, x)
+            insort_right(self.layer0[idx1], x)
+ 
+    def remove(self, x):  # 要素の削除  # O(sqrt(n))
+        # x が存在しない場合、x 以上の最小の要素が削除される
+        idx1 = bisect_left(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, x)
+        if idx0 == len(layer0_idx1):
+            del self.layer1[idx1]
+            self.layer0[idx1] += self.layer0.pop(idx1 + 1)
+        else:
+            del layer0_idx1[idx0]
+ 
+    def search_higher_equal(self, x):  # x 以上の最小の値を返す  O(log(n))
+        idx1 = bisect_left(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, x)
+        if idx0 == len(layer0_idx1):
+            return self.layer1[idx1]
+        return layer0_idx1[idx0]
+ 
+    def search_higher(self, x):  # x を超える最小の値を返す  O(log(n))
+        idx1 = bisect_right(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_right(layer0_idx1, x)
+        if idx0 == len(layer0_idx1):
+            return self.layer1[idx1]
+        return layer0_idx1[idx0]
+ 
+    def search_lower(self, x):  # x 未満の最大の値を返す  O(log(n))
+        idx1 = bisect_left(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, x)
+        if idx0 == 0:  # layer0_idx1 が空の場合とすべて x 以上の場合
+            return self.layer1[idx1 - 1]
+        return layer0_idx1[idx0 - 1]
+ 
+    def pop(self, idx):
+        # 小さい方から idx 番目の要素を削除してその要素を返す（0-indexed）
+        # O(sqrt(n))
+        # for を回すので重め、使うなら square パラメータを大きめにするべき
+        layer0 = self.layer0
+        s = -1
+        for i, l0 in enumerate(layer0):
+            s += len(l0) + 1
+            if s >= idx:
+                break
+        if s == idx:
+            layer0[i] += layer0.pop(i + 1)
+            return self.layer1.pop(i)
+        else:
+            return layer0[i].pop(idx - s)
+ 
+    def pop_max(self):
+        # 最大値を削除してその要素を返す（0-indexed） O(1)
+        # 空ならエラー
+        if self.layer0[-1]:
+            return self.layer0[-1].pop()
+        else:
+            del self.layer0[-1]
+            return self.layer1.pop(-2)
+ 
+    def __getitem__(self, item):
+        # 小さい方から idx 番目の要素を返す  O(sqrt(N))
+        layer0 = self.layer0
+        s = -1
+        for i, l0 in enumerate(layer0):
+            s += len(l0) + 1
+            if s >= item:
+                break
+        if s == item:
+            return self.layer1[i]
+        else:
+            return layer0[i][item - s]
+ 
+    def min(self):  # 最小値を返す  空なら inf を返す  O(1)
+        return self.layer0[0][0] if self.layer0[0] else self.layer1[0]
+ 
+    def max(self):  # 最大値を返す  空なら inf を返す  O(1)
+        return self.layer0[-1][-1] if self.layer0[-1] else self.layer1[-2] if len(self.layer0) >= 2 else inf
+ 
+    def merge(self, r):  # 結合  O(sqrt(n))
+        self.layer0[-1] += r.layer0[0]
+        self.layer0 += r.layer0[1:]
+        del self.layer1[-1]
+        self.layer1 += r.layer1
+ 
+    def split(self, k):  # k 以上を切り離す  O(sqrt(n))
+        idx1 = bisect_left(self.layer1, k)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, k)
+        r = SquareSkipList(square = self.square, seed = self.rand_y)
+        r.layer1 = self.layer1[idx1:]
+        r.layer0 = [layer0_idx1[idx0:]] + self.layer0[idx1 + 1:]
+        del self.layer1[idx1:-1], layer0_idx1[idx0:], self.layer0[idx1 + 1:]
+        return r
+ 
+    def print(self):
+        print(self.layer1)
+        print(self.layer0)
+ 
+    def __iter__(self):
+        layer1 = self.layer1
+        layer0 = self.layer0
+        idx1 = idx0 = 0
+        layer0_idx1 = layer0[idx1]
+        while True:
+            if len(layer0_idx1) == idx0:
+                if len(layer1) - 1 == idx1:
+                    return
+                yield layer1[idx1]
+                idx1 += 1
+                layer0_idx1 = layer0[idx1]
+                idx0 = 0
+            else:
+                yield layer0_idx1[idx0]
+                idx0 += 1
 
-n, q = map(int, input().split())
-m = 200200
-BT = [BalancingTree(48) for _ in [None] * m]
-BT_all = BalancingTree(48)
-# [30 : レート, 18 : ID]
-
-A = [0] * N
-X = [0] * N
-for i in range(n):
-    a, b = map(int, input().split())
-    b -= 1
-    A[i] = (a << 18) + i
-    X[i] = b
-    BT[b].append(A[i])
-
-for i in range(M):
-    BT_all.append(BT[i].find_max())
-
-for _ in [None] * q:
-    c, d = map(int, input().split())
-    c -= 1
-    d -= 1
-    b = X[c]
-    a = A[c]
-    X[c] = d
-    BT_all.delete(BT[d].find_max())
-    BT_all.delete(BT[b].find_max())
-    
-    BT[d].append(a)
-    BT[b].delete(a)
-    
-    BT_all.append(BT[d].find_max())
-    BT_all.append(BT[b].find_max())
-    
-    print(BT_all.find_min() >> 18)
+INF = float("inf")
+(n, q), *D = [[*map(int, o.split())] for o in open(0)]
+K = [[] for _ in [None] * 200001]
+R, P = [INF], [INF]
+for a, b in D[:n]:
+    R += a,
+    P += b,
+    K[b] += a,
+K = [SquareSkipList(k) for k in K]
+maxes = []
+for c, d in D[n:]:
+    r = R[c]
+    before = K[P[c]]
+#solving
