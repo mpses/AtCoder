@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 from collections import*
-(h, w, m), *d = [[*map(int, o.split())] for o in open(0)]
-x, y = zip(*d)
-a, e = Counter(x).most_common()[0]
-b, f = Counter(y).most_common()[0]
-C = defaultdict(lambda: 0)
-D = defaultdict(lambda: 0)
+(H, W, m), *d = [[*map(int, o.split())] for o in open(0)]
+x, y = [0] * H, [0] * W
 for h, w in d:
-    if h != a: C[w] += 1
-for h, w in d:
-    if w != b: D[w] += 1
-C, D = Counter(C), Counter(D)
-print(max(e + (C.most_common()[0][1] if C else 0), f + (D.most_common()[0][1] if D else 0)))
+    x[h - 1] += 1
+    y[w - 1] += 1
+X, Y = max(x), max(y)
+R = [h for h, i in enumerate(x) if i == X]
+C = [w for w, j in enumerate(y) if j == Y]
+# solving
