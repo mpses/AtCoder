@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+class Factorial:
+    def __init__(self, n, mod):
+        self.f = f =[0] * (n + 1)
+        f[0] = b = 1
+        for i in range(1, n + 1):f[i] = b = b * i % mod
+        self.inv = inv = [0] * (n + 1)
+        inv[n] = b = pow(self.f[n], -1, mod)
+        for i in range(n,0,-1):inv[i-1] = b = b * i % mod
+        self.mod = mod
+    def factorial(self, i):
+        return self.f[i]
+    def ifactorial(self, i):
+        return self.inv[i]
+    def comb(self, n, k):
+        if n >= k:return self.f[n] * self.inv[n - k] * self.inv[k] % self.mod
+        else:return 0
+
+MOD = 10**9 + 7
+F = Factorial(200000, MOD)
+s = int(input())
+p = 0
+for i in range(s // 3):
+    i += 1
+    d = F.comb(s - i * 2 - 1, i - 1)
+    p = (p + d) % MOD
+print(p)
