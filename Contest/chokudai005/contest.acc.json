@@ -1,0 +1,20 @@
+{
+  "contest": {
+    "id": "chokudai005",
+    "title": "Chokudai Contest 005",
+    "url": "https://atcoder.jp/contests/chokudai005"
+  },
+  "tasks": [
+    {
+      "id": "chokudai005_a",
+      "label": "A",
+      "title": "カラフルパネル",
+      "url": "https://atcoder.jp/contests/chokudai005/tasks/chokudai005_a",
+      "directory": {
+        "path": "a",
+        "testdir": "tests",
+        "submit": "main.py"
+      }
+    }
+  ]
+}

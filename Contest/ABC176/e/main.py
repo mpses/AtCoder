@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 from collections import*
-(H, W, m), *d = [[*map(int, o.split())] for o in open(0)]
+d = defaultdict(bool)
+(H, W, _), *C = [[*map(int, o.split())] for o in open(0)]
 x, y = [0] * H, [0] * W
-for h, w in d:
-    x[h - 1] += 1
-    y[w - 1] += 1
+for h, w in C:
+    h -= 1; w -= 1
+    x[h] += 1
+    y[w] += 1
+    d[f"{h}-{w}"] = True
 X, Y = max(x), max(y)
-R = [h for h, i in enumerate(x) if i == X]
-C = [w for w, j in enumerate(y) if j == Y]
-# solving
+A = [h for h, i in enumerate(x) if i == X]
+B = [w for w, j in enumerate(y) if j == Y]
+flag = False
+for a in A:
+    for b in B:
+        if not d[f"{a}-{b}"]:
+            flag = True
+            break
+print(X + Y - 1 + flag)
