@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
 x, y, a, b = map(int, input().split())
 c = 0
-while x < y:
+while y > a * x <= x + b:
     x *= a
     c += 1
-x //= a
-c -= 1
-while x < y:
-    x += b
-    c += 1
-c -= 1
-print(c)
+print(c + (y - x - 1) // b)
