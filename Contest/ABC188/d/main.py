@@ -1,38 +1,47 @@
 #!/usr/bin/env python3
-from itertools import*
-class Imos:
-    def __init__(self, n):
-        self.B = [0] * n
-        self.n = n
-
-    def __call__(self, l, r, v = 1):
-        l, r = max(l, 0), min(r, self.n - 1)
-        self.B[l] += v
-        if r + 1 != self.n:
-            self.B[r + 1] -= v
-
-    def out(self):
-        *res, = accumulate(self.B)
-        # self.__init__(self.n)
-        return res
-
-def compress(a: list) -> list:
+def compress(a: list):
+    # 座標圧縮
     s = sorted(set(a))
     d = {v : i for i, v in enumerate(s)}
-    return s, d
-    #return [d[i] for i in a]
+    return s, d, [d[i] for i in a]
 
-def separate(a: list, length) -> zip:
-    return zip(*[iter(lst)]*length)
+from bisect import*
+from itertools import accumulate, chain
+class Imos:
+    # クエリ先読み座圧対応imos法
+    # bisect, itertools.accumulate, itertools.chain.from_iterable, compress 必須
+    def __init__(self, query: "[[l, r, v], ...]", rclosed = False):
+        if rclosed:
+            query = [[l, r + 1, v] for l, r, v in query]
+        *code, = chain.from_iterable(query)
+        self.s, code, _ = compress(code[::2] + code[1::2])
+        n = len(code)
+        B = [0] * n
 
-(n, C), *q = [[*map(int, o.split())] for o in open(0)]
-s, d = compress(sum([*zip(*q)][:2], ()))
-s += s[-1] + 1,
-imos = Imos(len(d))
-for a, b, c in q:
-    imos(d[a], d[b], c)
-    ans = 0
-print(imos.out())
-for e, i in enumerate(imos.out()):
-    ans += (s[e + 1] - s[e]) * min(C, i)
-print(ans)
+        for l, r, v in query:
+            B[code[l]] += v
+            if code[r] != n:
+                B[code[r]] -= v
+        self.code = code
+        *self.res, = accumulate(B)
+
+    def get(self, x):
+        return self.res[bisect(self.s, x) - 1]
+ 
+    def sum(self, l, r):
+        # Σ[l, r) O(n)
+        s, res = self.s, self.res
+        L, R = bisect(s, l) - 1, bisect(s, r) - 1
+        ans = (s[L + 1] - l) * res[L]
+        for i in range(L + 1, R):
+            ans += (s[i + 1] - s[i]) * res[i]
+        ans += (r - s[R]) * res[R]
+        return ans
+ 
+    def sumall(self):
+        return self.sum(0, self.s[-1] + 1)
+
+(_, C), *q = [[*map(int, o.split())] for o in open(0)]
+imos = Imos(q, rclosed = True)
+imos.res = [min(x, C) for x in imos.res]
+print(imos.sumall())
