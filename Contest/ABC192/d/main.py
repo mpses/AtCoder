@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 def meg_bisect(ng, ok, func):
     # 二分探索・二分法 O(logn)
     # 半開区間 (ng, ok] / [ok, ng)
@@ -11,10 +12,21 @@ def meg_bisect(ng, ok, func):
             ng = mid
     return ok
 
-n = int(input())
-if n <= 2:
-    print(1)
+f = lambda k: sum(a * (k ** r) for r, a in x) <= m
+x = input()
+y = int(x)
+*x, = map(int, x[::-1])
+m = int(input())
+d = max(x) + 1
+*x, = enumerate(x)
+
+if len(x) == 1:
+    if y <= m: print(1)
+    else: print(0)
     exit()
-# 1, 2, 3, ... k を n + 1 からまず切り取るのが最適
-t = meg_bisect(0, n, lambda k: k * (k + 1) // 2 > n + 1)
-print(n - t + 2)
+
+if not f(d):
+    print(0)
+    exit()
+
+print(meg_bisect(10 ** 36, d, f) - d + 1)
